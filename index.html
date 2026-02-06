@@ -38,6 +38,58 @@
             border-radius: 8px;
         }
 
+        .generation-type-section {
+            margin-bottom: 24px;
+            padding: 16px;
+            background: #fef3c7;
+            border: 1px solid #fde68a;
+            border-radius: 8px;
+        }
+
+        .generation-type-section label {
+            display: block;
+            font-size: 13px;
+            color: #92400e;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .generation-type-section select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #fbbf24;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .generation-type-section {
+            margin-bottom: 24px;
+            padding: 16px;
+            background: #fef3c7;
+            border: 1px solid #fde68a;
+            border-radius: 8px;
+        }
+
+        .generation-type-section label {
+            display: block;
+            color: #92400e;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .generation-type-section select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #fde68a;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+
         .profile-header {
             display: flex;
             justify-content: space-between;
@@ -325,6 +377,10 @@
             cursor: pointer;
             transition: all 0.2s;
             box-shadow: 0 10px 15px -3px rgba(147, 51, 234, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         .generate-btn:hover:not(:disabled) {
@@ -336,6 +392,43 @@
         .generate-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+        }
+
+        .generate-btn.generating {
+            pointer-events: none;
+        }
+
+        .spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        .generate-btn.generating .spinner {
+            display: block;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { 
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(147, 51, 234, 0.4);
+            }
+            50% { 
+                transform: scale(1.02);
+                box-shadow: 0 0 0 8px rgba(147, 51, 234, 0);
+            }
+        }
+
+        .password-output.pulse {
+            animation: pulse 0.6s ease-out;
         }
 
         .password-output {
@@ -587,27 +680,49 @@
     <div class="container">
         <div class="header">
             <h1>Password Generator</h1>
-            <p class="subtitle">Generate a unique, deterministic password or passphrase</p>
+            <p class="subtitle">Generate a random or deterministic password</p>
         </div>
 
-        <div class="profile-section">
-            <div class="profile-header">
-                <span class="profile-title">Profile Select</span>
-                <button class="manage-btn" id="manageProfilesBtn">Manage Profiles</button>
-            </div>
-            <select class="profile-select" id="profileSelect">
-                <option value="">No Profile Selected</option>
+        <div class="generation-type-section">
+            <label for="generationType">Generation Type</label>
+            <select id="generationType">
+                <option value="deterministic">Deterministic (Same key = Same password)</option>
+                <option value="random">Random (New password each time)</option>
             </select>
         </div>
 
-        <div class="form-group">
-            <label for="keyInput">Key (e.g., website name)</label>
-            <input 
-                type="text" 
-                id="keyInput" 
-                placeholder="example.com"
-                autocomplete="off"
-            >
+        <div id="deterministicSection">
+            <div class="profile-section">
+                <div class="profile-header">
+                    <span class="profile-title">Deterministic Settings</span>
+                    <button class="manage-btn" id="manageProfilesBtn">Manage Profiles</button>
+                </div>
+                
+                <div style="margin-top: 12px;">
+                    <label style="display: block; font-size: 13px; color: #0c4a6e; margin-bottom: 6px; font-weight: 500;">Profile Select</label>
+                    <select class="profile-select" id="profileSelect">
+                        <option value="">No Profile Selected</option>
+                    </select>
+                </div>
+
+                <div style="margin-top: 16px;">
+                    <label for="keyInput" style="display: block; font-size: 13px; color: #0c4a6e; margin-bottom: 6px; font-weight: 500;">Key (e.g., website name)</label>
+                    <input 
+                        type="text" 
+                        id="keyInput" 
+                        placeholder="example.com"
+                        autocomplete="off"
+                        style="width: 100%; padding: 8px 12px; border: 1px solid #bae6fd; border-radius: 6px; font-size: 14px;"
+                    >
+                </div>
+
+                <div style="margin-top: 16px; padding: 12px; background: #e0f2fe; border: 1px solid #7dd3fc; border-radius: 6px;">
+                    <p style="font-size: 12px; color: #0c4a6e; line-height: 1.5; margin: 0;">
+                        <strong>Note:</strong> The same key will always generate the same password. 
+                        Keep your keys consistent (e.g., always use "gmail.com" not "Gmail" or "gmail").
+                    </p>
+                </div>
+            </div>
         </div>
 
         <div class="password-options">
@@ -654,7 +769,8 @@
         </div>
 
         <button class="generate-btn" id="generateBtn">
-            Generate Password
+            <span class="spinner"></span>
+            <span id="generateBtnText">Generate Password</span>
         </button>
 
         <div class="password-output" id="passwordOutput">
@@ -680,14 +796,6 @@
                 </button>
             </div>
         </div>
-
-        <div class="warning-box">
-            <p class="warning-text">
-                <strong>Note:</strong> The same key will always generate the same password. 
-                Keep your keys consistent (e.g., always use "gmail.com" not "Gmail" or "gmail").
-                Your master secret ensures your passwords are unique to you.
-            </p>
-        </div>
     </div>
 
     <!-- Profile Management Modal -->
@@ -696,6 +804,12 @@
             <div class="modal-header">
                 <h2 class="modal-title">Manage Profiles</h2>
                 <button class="close-btn" id="closeModal">&times;</button>
+            </div>
+
+            <div style="background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 12px; margin-bottom: 16px;">
+                <p style="font-size: 13px; color: #0c4a6e; line-height: 1.6; margin: 0;">
+                    <strong>About Profiles & Master Secrets:</strong> Each profile has a unique master secret that combines with your keys to generate passwords. The same key (e.g., "gmail.com") will produce different passwords for different profiles, allowing you to safely share this app while keeping your passwords unique. Your master secret is the one thing you need to remember.
+                </p>
             </div>
 
             <div class="profile-list" id="profileList">
@@ -797,6 +911,8 @@
         const passphraseOptionsContent = document.getElementById('passphraseOptions');
         const wordCount = document.getElementById('wordCount');
         const wordCountValue = document.getElementById('wordCountValue');
+        const generationType = document.getElementById('generationType');
+        const deterministicSection = document.getElementById('deterministicSection');
 
         // Load profiles from localStorage
         function loadProfiles() {
@@ -1137,7 +1253,61 @@
             'wrong', 'yard', 'year', 'yellow', 'you', 'young', 'youth', 'zebra', 'zero', 'zone', 'zoo'
         ];
 
-        // Generate passphrase
+        // Generate random passphrase
+        function generateRandomPassphrase(numWords) {
+            const words = [];
+            for (let i = 0; i < numWords; i++) {
+                const index = Math.floor(Math.random() * wordList.length);
+                words.push(wordList[index]);
+            }
+            return words.join('-');
+        }
+
+        // Generate random password
+        function generateRandomPassword(options) {
+            const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+            const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const numbers = '0123456789';
+            const symbols = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+            
+            // Build available character set based on options
+            let availableChars = lowercase; // Always include lowercase
+            const requiredChars = [];
+            
+            if (options.includeUppercase) {
+                availableChars += uppercase;
+                requiredChars.push(uppercase);
+            }
+            if (options.includeNumbers) {
+                availableChars += numbers;
+                requiredChars.push(numbers);
+            }
+            if (options.includeSymbols) {
+                availableChars += symbols;
+                requiredChars.push(symbols);
+            }
+            
+            // Generate password
+            let result = '';
+            const length = Math.max(4, Math.min(64, options.length));
+            
+            // First, ensure at least one character from each required set
+            requiredChars.forEach(charSet => {
+                result += charSet[Math.floor(Math.random() * charSet.length)];
+            });
+            
+            // Fill the rest with random characters from available set
+            for (let i = result.length; i < length; i++) {
+                result += availableChars[Math.floor(Math.random() * availableChars.length)];
+            }
+            
+            // Shuffle the result
+            result = result.split('').sort(() => Math.random() - 0.5).join('');
+            
+            return result;
+        }
+
+        // Generate deterministic passphrase
         function generatePassphrase(input, secret, numWords) {
             if (!input) return '';
             
@@ -1174,6 +1344,65 @@
             }
             
             // Join with hyphens
+            return words.join('-');
+        }
+
+        // Generate random password (truly random)
+        function generateRandomPassword(options) {
+            const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+            const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const numbers = '0123456789';
+            const symbols = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+            
+            // Build available character set based on options
+            let availableChars = lowercase; // Always include lowercase
+            const requiredChars = [];
+            
+            if (options.includeUppercase) {
+                availableChars += uppercase;
+                requiredChars.push(uppercase);
+            }
+            if (options.includeNumbers) {
+                availableChars += numbers;
+                requiredChars.push(numbers);
+            }
+            if (options.includeSymbols) {
+                availableChars += symbols;
+                requiredChars.push(symbols);
+            }
+            
+            // Ensure at least lowercase is available
+            if (availableChars.length === 0) {
+                availableChars = lowercase;
+            }
+            
+            // Generate password
+            let result = '';
+            const length = Math.max(4, Math.min(64, options.length));
+            
+            // First, ensure at least one character from each required set
+            requiredChars.forEach(charSet => {
+                result += charSet[Math.floor(Math.random() * charSet.length)];
+            });
+            
+            // Fill the rest with random characters from available set
+            for (let i = result.length; i < length; i++) {
+                result += availableChars[Math.floor(Math.random() * availableChars.length)];
+            }
+            
+            // Shuffle the result to avoid predictable patterns
+            result = result.split('').sort(() => Math.random() - 0.5).join('');
+            
+            return result;
+        }
+
+        // Generate random passphrase (truly random)
+        function generateRandomPassphrase(numWords) {
+            const words = [];
+            for (let i = 0; i < numWords; i++) {
+                const index = Math.floor(Math.random() * wordList.length);
+                words.push(wordList[index]);
+            }
             return words.join('-');
         }
 
@@ -1256,37 +1485,81 @@
         }
 
         function updateButtonState() {
-            generateBtn.disabled = !keyInput.value.trim();
+            const isRandom = generationType.value === 'random';
+            if (isRandom) {
+                generateBtn.disabled = false;
+            } else {
+                generateBtn.disabled = !keyInput.value.trim();
+            }
         }
 
         function handleGenerate() {
-            const key = keyInput.value.trim();
-            if (!key) return;
-
+            const isRandom = generationType.value === 'random';
             const mode = generationMode.value;
 
-            if (mode === 'passphrase') {
-                const numWords = parseInt(wordCount.value) || 4;
-                generatedPassword = generatePassphrase(key, currentMasterSecret, numWords);
-            } else {
-                const options = {
-                    includeUppercase: includeUppercase.checked,
-                    includeNumbers: includeNumbers.checked,
-                    includeSymbols: includeSymbols.checked,
-                    length: parseInt(passwordLength.value) || 16
-                };
-                generatedPassword = generatePassword(key, currentMasterSecret, options);
-            }
+            // Add generating state
+            generateBtn.classList.add('generating');
 
-            showPassword = false;
-            updatePasswordDisplay();
-            passwordOutput.classList.add('visible');
-            
-            // Reset copy button
-            copyIcon.style.display = 'block';
-            checkIcon.style.display = 'none';
-            copyBtn.classList.remove('copied');
-            copyBtn.classList.add('copy');
+            // Simulate brief processing time for animation
+            setTimeout(() => {
+                if (isRandom) {
+                    // Random generation
+                    if (mode === 'passphrase') {
+                        const numWords = parseInt(wordCount.value) || 4;
+                        generatedPassword = generateRandomPassphrase(numWords);
+                    } else {
+                        const options = {
+                            includeUppercase: includeUppercase.checked,
+                            includeNumbers: includeNumbers.checked,
+                            includeSymbols: includeSymbols.checked,
+                            length: parseInt(passwordLength.value) || 16
+                        };
+                        generatedPassword = generateRandomPassword(options);
+                    }
+                } else {
+                    // Deterministic generation
+                    const key = keyInput.value.trim();
+                    if (!key) {
+                        generateBtn.classList.remove('generating');
+                        return;
+                    }
+
+                    if (mode === 'passphrase') {
+                        const numWords = parseInt(wordCount.value) || 4;
+                        generatedPassword = generatePassphrase(key, currentMasterSecret, numWords);
+                    } else {
+                        const options = {
+                            includeUppercase: includeUppercase.checked,
+                            includeNumbers: includeNumbers.checked,
+                            includeSymbols: includeSymbols.checked,
+                            length: parseInt(passwordLength.value) || 16
+                        };
+                        generatedPassword = generatePassword(key, currentMasterSecret, options);
+                    }
+                }
+
+                showPassword = true; // Show password by default
+                updatePasswordDisplay();
+                
+                // Remove generating state and add pulse animation
+                generateBtn.classList.remove('generating');
+                passwordOutput.classList.add('visible');
+                passwordOutput.classList.remove('pulse');
+                // Force reflow to restart animation
+                void passwordOutput.offsetWidth;
+                passwordOutput.classList.add('pulse');
+                
+                // Reset copy button
+                copyIcon.style.display = 'block';
+                checkIcon.style.display = 'none';
+                copyBtn.classList.remove('copied');
+                copyBtn.classList.add('copy');
+
+                // Remove pulse animation after it completes
+                setTimeout(() => {
+                    passwordOutput.classList.remove('pulse');
+                }, 600);
+            }, 300); // 300ms delay for spinning animation
         }
 
         function updatePasswordDisplay() {
@@ -1340,7 +1613,6 @@
         }
 
         // Event listeners
-        keyInput.addEventListener('input', updateButtonState);
         keyInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') handleGenerate();
         });
@@ -1407,9 +1679,27 @@
             wordCountValue.textContent = `${count} word${count > 1 ? 's' : ''}`;
         });
 
+        // Generation type switching
+        generationType.addEventListener('change', () => {
+            if (generationType.value === 'random') {
+                deterministicSection.style.display = 'none';
+            } else {
+                deterministicSection.style.display = 'block';
+            }
+            updateButtonState();
+        });
+
+        // Update button state when key changes
+        keyInput.addEventListener('input', updateButtonState);
+
         // Initialize
         loadProfiles();
         updateButtonState();
+        
+        // Ensure deterministic section is visible on load (default)
+        if (generationType.value === 'deterministic') {
+            deterministicSection.style.display = 'block';
+        }
     </script>
 </body>
 </html>
