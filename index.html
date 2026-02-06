@@ -686,8 +686,8 @@
         <div class="generation-type-section">
             <label for="generationType">Generation Type</label>
             <select id="generationType">
-                <option value="deterministic">Deterministic (Same key = Same password)</option>
                 <option value="random">Random (New password each time)</option>
+                <option value="deterministic">Deterministic (Same key = Same password)</option>
             </select>
         </div>
 
@@ -1685,6 +1685,13 @@
                 deterministicSection.style.display = 'none';
             } else {
                 deterministicSection.style.display = 'block';
+                // Pre-select first profile if one exists and none is selected
+                if (!currentProfileId && profiles.length > 0) {
+                    currentProfileId = profiles[0].id;
+                    profileSelect.value = currentProfileId;
+                    loadCurrentProfile();
+                    saveProfiles();
+                }
             }
             updateButtonState();
         });
@@ -1695,11 +1702,16 @@
         // Initialize
         loadProfiles();
         updateButtonState();
-        
-        // Ensure deterministic section is visible on load (default)
-        if (generationType.value === 'deterministic') {
+
+        // Hide deterministic section on load (random is default)
+        if (generationType.value === 'random') {
+            deterministicSection.style.display = 'none';
+        } else {
             deterministicSection.style.display = 'block';
         }
+
+        // Auto-generate password on page load
+        handleGenerate();
     </script>
 </body>
 </html>
